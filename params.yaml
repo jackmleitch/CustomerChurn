@@ -2,6 +2,7 @@ external_data_config:
   external_data_csv: data/external/train.csv
 raw_data_config:
   raw_data_csv: data/raw/train.csv
+  raw_data_kfold_csv: data/raw/train_fold.csv
   model_features:
     numeric:
       [
@@ -32,7 +33,7 @@ raw_data_config:
   n_splits: 5
   random_state: 42
 # processed_data_config:
-#   train_data_csv: data/processed/churn_train.csv
+# train_data_csv: data/processed/churn_train.csv
 #   test_data_csv:  data/processed/churn_test.csv
 
 # mlflow_config:
