@@ -44,5 +44,6 @@ if __name__ == "__main__":
     parsed_args = args.parse_args()
 
     df_split = stratKFold(config_path=parsed_args.config)
-    # df.to_csv("train_fold.csv", index=False)
+    config = read_params(parsed_args.config)
+    df_split.to_csv(config["raw_data_config"]["raw_data_kfold_csv"], index=False)
 
