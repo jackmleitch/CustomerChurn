@@ -1,8 +1,9 @@
 external_data_config:
   external_data_csv: data/external/train.csv
+
 raw_data_config:
   raw_data_csv: data/raw/train.csv
-  raw_data_kfold_csv: data/raw/train_fold.csv
+  raw_data_fold_csv: data/raw/train_fold.csv
   model_features:
     numeric:
       [
@@ -36,17 +37,8 @@ raw_data_config:
 # train_data_csv: data/processed/churn_train.csv
 #   test_data_csv:  data/processed/churn_test.csv
 
-# mlflow_config:
-#   artifacts_dir: artifacts
-#   experiment_name: model_iteration1
-#   run_name: random_forest
-#   registered_model_name: random_forest_model
-#   remote_server_uri: http://localhost:1234
-
-# random_forest:
-#   max_depth: 10
-#   n_estimators: 30
-
+mlflow_config:
+  remote_server_uri: http://localhost:1234
 # model_dir: models/model.joblib
 
 # model_webapp_dir: webapp/model_webapp_dir/model.joblib
