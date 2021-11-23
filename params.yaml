@@ -22,11 +22,11 @@ raw_data_config:
         "total_intl_calls",
         "total_intl_charge",
       ]
-    catergorical:
+    categorical:
       [
         "state",
         "area_code",
-        international_plan",
+        "international_plan",
         "voice_mail_plan",
         "number_customer_service_calls",
       ]
