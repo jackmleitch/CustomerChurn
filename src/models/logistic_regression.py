@@ -7,7 +7,9 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.metrics import roc_auc_score
 from mlxtend.feature_selection import ColumnSelector
-
+from imblearn.over_sampling import SMOTE, SMOTENC
+from imblearn.under_sampling import TomekLinks
+from imblearn.combine import SMOTETomek
 
 from src.data.load_data import read_params
 
@@ -54,7 +56,7 @@ def feature_pipeline(config_path="params.yaml"):
     return features
 
 
-def run(fold, config_path="params.yaml"):
+def run(fold, config_path="params.yaml", smote=False):
     """
     :param fold: fold to train model on
     :param config_path: path to params.yaml file
@@ -87,6 +89,17 @@ def run(fold, config_path="params.yaml"):
     x_train = features.fit_transform(df_train)
     x_valid = features.transform(df_valid)
 
+    # smote x tomek
+    if smote:
+        # smt = SMOTETomek(
+        #     smote=SMOTE(sampling_strategy=0.35, random_state=42, n_jobs=-1),
+        #     tomek=TomekLinks(sampling_strategy="majority", n_jobs=-1),
+        #     random_state=42,
+        #     n_jobs=-1,
+        # )
+        smt = SMOTE(random_state=42)
+        x_train, y_train = smt.fit_resample(x_train, y_train)
+
     # create and train model
     clf = LogisticRegression()
     clf.fit(x_train, y_train)
@@ -101,6 +114,6 @@ if __name__ == "__main__":
     folds = config["raw_data_config"]["n_splits"]
     scores = []
     for i in range(folds):
-        auc = run(fold=0)
+        auc = run(fold=0, smote=True)
         scores.append(auc)
     print(f"\nAverage AUC = {sum(scores)/len(scores)}")
