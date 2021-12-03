@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.metrics import roc_auc_score, f1_score, accuracy_score
+from sklearn.metrics import recall_score, f1_score, precision_score
 from mlxtend.feature_selection import ColumnSelector
 from imblearn.over_sampling import SMOTE, SMOTENC
 from imblearn.under_sampling import TomekLinks
@@ -15,17 +15,18 @@ from imblearn.combine import SMOTETomek
 from src.data.load_data import read_params
 
 
+# scoring function 
 def score(y, preds):
     """
-    Returns corresponding metric scores
+    Returns corresponding metric scores 
     :param y: true y values
     :param preds: predicted y values
-    :return: auc, f1, and accuracy scores 
+    :return: f1_score, recall, and precision scores 
     """
-    auc = roc_auc_score(y, preds)
     f1 = f1_score(y, preds)
-    acc = accuracy_score(y, preds)
-    return auc, f1, acc
+    recall = recall_score(y, preds)
+    precision = precision_score(y, preds)
+    return [f1, recall, precision]
 
 
 def feature_pipeline(config_path="params.yaml"):
@@ -74,7 +75,7 @@ def run(fold, config_path="params.yaml", smote=False):
     """
     :param fold: fold to train model on
     :param config_path: path to params.yaml file
-    :return: auc, f1, and accuracy validation score for fold
+    :return: f1, recall, precision validation score for fold
     """
     # load in config information
     config = read_params(config_path)
@@ -117,36 +118,36 @@ def run(fold, config_path="params.yaml", smote=False):
     clf.fit(x_train, y_train)
     preds = clf.predict(x_valid)
     # score model
-    auc, f1, acc = score(y_valid, preds)
-    print(f"Fold = {fold}, AUC = {auc}")
+    f1, recall, precision = score(y_valid, preds)
     print(f"Fold = {fold}, F1 = {f1}")
-    print(f"Fold = {fold}, Accuracy = {acc}")
-    return auc, f1, acc
+    print(f"Fold = {fold}, Recall = {recall}")
+    print(f"Fold = {fold}, Precision = {precision}")
+    return f1, recall, precision
 
 
 if __name__ == "__main__":
     config = read_params("params.yaml")
     folds = config["raw_data_config"]["n_splits"]
-    scores_auc = []
     scores_f1 = []
-    scores_acc = []
+    scores_recall = []
+    scores_precision = []
     for i in range(folds):
-        auc, f1, acc = run(fold=i, smote=True)
-        scores_auc.append(auc)
+        f1, recall, precision = run(fold=i, smote=True)
         scores_f1.append(f1)
-        scores_acc.append(acc)
+        scores_recall.append(recall)
+        scores_precision.append(precision)
 
-    average_auc = sum(scores_auc) / len(scores_auc)
     average_f1 = sum(scores_f1) / len(scores_f1)
-    average_acc = sum(scores_acc) / len(scores_acc)
-    print(f"\nAverage AUC = {average_auc}")
+    average_recall = sum(scores_recall) / len(scores_recall)
+    average_precision = sum(scores_precision) / len(scores_precision)
     print(f"\nAverage F1 = {average_f1}")
-    print(f"\nAverage Accuracy = {average_acc}")
+    print(f"\nAverage Recall = {average_recall}")
+    print(f"\nAverage Precision = {average_precision}")
 
     # mlflow.set_tracking_uri(remote_server_uri)
     mlflow.set_experiment("mlflow/churn_model")
 
     with mlflow.start_run(run_name="linear_regression_smote") as mlops_run:
-        mlflow.log_metric("AUC", average_auc)
         mlflow.log_metric("F1", average_f1)
-        mlflow.log_metric("Accuracy", average_acc)
+        mlflow.log_metric("Recall", average_recall)
+        mlflow.log_metric("Precision", average_precision)
