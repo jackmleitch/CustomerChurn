@@ -19,7 +19,8 @@ if __name__ == "__main__":
     df.loc[:, target] = df[target].map(target_mapping)
 
     # total day charge has highest corr. with target
-    feature = "total_day_charge"
+    feature = ["total_day_minutes", "number_customer_service_calls"]
+
     # loop over each fold
     n_splits = config["raw_data_config"]["n_splits"]
     scores_auc = []
