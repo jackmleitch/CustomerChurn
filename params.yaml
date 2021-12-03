@@ -24,8 +24,6 @@ raw_data_config:
       ]
     categorical:
       [
-        "state",
-        "area_code",
         "international_plan",
         "voice_mail_plan",
         "number_customer_service_calls",
