@@ -8,7 +8,6 @@ raw_data_config:
     numeric:
       [
         "account_length",
-        "number_vmail_messages",
         "total_day_minutes",
         "total_day_calls",
         "total_day_charge",
@@ -21,13 +20,23 @@ raw_data_config:
         "total_intl_minutes",
         "total_intl_calls",
         "total_intl_charge",
+        "number_customer_service_calls",
+        "number_vmail_messages",
+        "total_minutes",
+        "total_calls",
+        "total_charge"
+      ]
+    binary:
+      [
+      "international_plan",
+      "voice_mail_plan",
       ]
     categorical:
       [
-        "international_plan",
-        "voice_mail_plan",
-        "number_customer_service_calls",
+        "area_code", 
+        "state"
       ]
+      
   target: churn
   n_splits: 5
   random_state: 42
