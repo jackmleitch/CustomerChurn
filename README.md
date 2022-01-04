@@ -1,14 +1,16 @@
 # Customer Churn Prediction
 ## Project Overview
-<!-- * Created a tool that **predicts kudos** (a proxy for user interaction) on [Strava activities](https://www.strava.com/athletes/5028644) (RMSE: 9.41) to see if it was random or if different attributes impact kudos in different ways.
-* Attained over 4000 Strava activities using the **Strava API** and python.
-* **Engineered new features** using domain knowledge. For example, features encapsulating different run types and times of day were added.
-* Performed **feature selection** using a combination of SHAP values and feature importance.
-* Optimized Linear (Lasso), Random Forest, and XGBoost Regressors using **Optuna** to reach the best model.
-* Built an **interactive API** application using Streamlit, which can be found [here](https://strava-kudos.herokuapp.com/). -->
+* Created an interpretable model that **predicts churn** on telecom data found on [Kaggle](https://www.kaggle.com/c/customer-churn-prediction-2020/overview) (F1: 0.796) to build a pipeline to try and retain more customers.
+* Used **SMOTE** to oversample minority class (churned customers) which imporved the F1 score from 0.61 to 0.80.
+* **Engineered new features** for example, aggregating different features together. 
+* Performed **feature selection** using SHAP values.
+* Optimized Logistic Regression and Decision Tree models using **Optuna** and pruned the decision tree further to reduce overfitting.
+* Used Mlflow to track model experimentation. 
 
 ## Motivation
+I've always believed that to truly learn data science you need to practice data science and I wanted to do this project to practice working with imbalanced classes in classification problems. This was also a perfect opportunity to start working with mlflow to help track my machine learning experiments: it allows me to track the different models I have used, the parameters I've trained with, and the metrics I've recorded.
 
+This project was aimed at predicting customer churn using the telecommunications data found on [Kaggle](https://www.kaggle.com/c/customer-churn-prediction-2020/overview). That is, we want to be able to predict if a given customer is going the leave the telecom provider based on the information we have on that customer. Now, why is this useful? Well, if we can predict which customers we think are going to leave before they leave then we can try to do something about it! For example, we could target them with specific offers, and maybe we could even use the model to provide us insight into what to offer them because we will know, or at least have an idea, as to why they are leaving.
 
 ## Code and Resources Used 
 **Python Version:** 3.9.7 <br />
@@ -19,43 +21,39 @@
 <!-- A blog post was written about this project and it was featured on Towards Data Science's editors pick section, it can be found [here](https://towardsdatascience.com/predicting-strava-kudos-1a4ce7a02053). -->
 
 ## Data Collection
-
+The data for this project was from a public Kaggle competition found [here](https://www.kaggle.com/c/customer-churn-prediction-2020/overview). 
 
 ## EDA
-<!-- Some notable findings include:
-* The Kudos received depended heavily on how many followers I had at the time. Unfortunately, there was no way to see how many followers I had at each point in time, therefore I could only use my most recent 1125 activities to train my model as the kudos stayed fairly consistent in this interval.
-* It was found that the target variable is skewed right and there are some extreme values above ~100.
-* Features such as distance, moving_time, and average_speed_mpk seem to share a similar distribution to the one we have with kudos_count.
-* By looking at time distribution between activities, it was found that runs that are quickly followed in succession by other runs tend to receive fewer kudos than runs that were the only activity that day. To add to this, the longest activity of the day tends to receive more kudos than the other runs that day.
+Some notable findings include:
+* The target variable was very imbalanced with 85.93% of the data belonging to class churn=no. 
+* There were not many correlated features when feature interaction was not taken into account. 
 
 <p float="left">
-  <img src="https://github.com/jackmleitch/StravaKudos/blob/main/input/images/pivot_table.png" width="200" />
-  <img src="https://github.com/jackmleitch/StravaKudos/blob/main/input/images/indexs.png" width="300" /> 
-  <img src="https://github.com/jackmleitch/StravaKudos/blob/main/input/images/corr.png" width="300" />
-</p> -->
+  <img src="https://github.com/jackmleitch/CustomerChurn/blob/main/data/blog_content/churn_plot.png" width="500" />
+  <img src="https://github.com/jackmleitch/CustomerChurn/blob/main/data/blog_content/corr.png" width="400" /> 
+</p>
 
 ## Preprocessing and Feature Engineering
-<!-- After obtaining the data, I needed to clean it up so that it was usable for my model. I made the following changes and created the following variables:
-* An 80/20 train/test split was used and as my data contained dates, the most recent 20% of the data became the test set. I then split the training set into 5 folds using Sklearn's StratifiedKFold, Sturge's rule was used to bin the continuous target variable.
-* Any missing values in a categorical feature were assigned a new category 'NONE' and missing values in numeric features were imputed using the median. Some heuristic functions were also used to impute systematic missing values. 
-* Time-based features were added: year, month, day of the week, etc. Other features were also created using specific domain knowledge. I go into depth about this in the corresponding [blog post](https://towardsdatascience.com/predicting-strava-kudos-1a4ce7a02053).
-* One-hot-encoding was used to encode categorical features and ordinal encoding was used to encode ordinal features. Target encoding was also used for a few categorical features.  -->
+After obtaining the data, I needed to clean it up so that it was usable for my model. I made the following changes and created the following variables:
+* An stratified 80/20 train/test split was used. I then split the training set into 5 folds using Sklearn's StratifiedKFold.
+* The yes/no target values were mapped to binary 1/0. 
+* Any missing values in a categorical feature were assigned a new category 'NONE' and missing values in numeric features were imputed using the median. 
+* Aggregation of some features was used, for example combining total day, eve, and night calls into one feature total calls.
+* One-hot-encoding was used to encode categorical features and ordinal encoding was used to encode ordinal features. 
 
 ## Model Building 
-<!-- In this step, I built a few different candidate models and compared different metrics to determine which was the best model for deployment. Three of those models were:
-* Dummy Classifier (simply returns average kudos) - Baseline for the model.
-* Lasso Regression - Because of the sparse data from the many categorical variables, I thought a normalized regression like lasso would be effective.
-* Random Forest - Again, with the sparsity associated with the data, I thought that this would be a good fit.
-* XGBRegressor - Well... this model just always seems to work.
+In this step, I started by building two baseline models which were a simple Dummy Classifier which always predicts the majority class (churn=no) and a Logistic Regression model that used the two most correlated features with churn. After this, I built a few different candidate models and compared different metrics to determine which was the best model for deployment. My main aim was to build an interpretable model so the two shortlisted models were:
+* Logistic Regression 
+* Decision Tree Classifier
 
-Feature selection was performed using a mix of SHAP values and feature importance from XGB. 
-
-Optuna was used to tune all three shortlisted models. In particular, the Tree-structured Parzen Estimator (TPE) was used.
+Feature selection was performed using SHAP values from a more complicated Random Forest Classifier. 
 <p align="center">
-<img src="https://github.com/jackmleitch/StravaKudos/blob/main/input/images/optuna.png" width="600" height="300">
-</p> -->
+<img src="https://github.com/jackmleitch/CustomerChurn/blob/main/data/blog_content/shap.png" width="400" height="300">
+</p>
 
-## Model Performance
+Optuna was used to tune both shortlisted models. In particular, the Tree-structured Parzen Estimator (TPE) was used to minimize a custom metric which was the RMSE of the difference between validation and training F1 score and is weighted four times less than the validation F1 score. Optimizing this function forced the train and valid score to stay close, while also maximizing the validation score. This was used as decision trees notoriously overfit the training data. Cost complexity post pruning was also used to help the decision tree generalize better (and also improve interpretability). 
+
+<!-- ## Model Performance
 <!-- The XGB model far outperformed the other approaches on the test and validation sets.
 * XGB Regressor : RMSE = 9.41
 * Lasso Regression: RMSE = 10.54
@@ -69,4 +67,4 @@ The final XGB model was then trained on the whole training dataset using the hyp
 <p float="left">
   <img src="https://github.com/jackmleitch/StravaKudos/blob/main/input/images/shap_feature_imp.png" width="400" />
   <img src="https://github.com/jackmleitch/StravaKudos/blob/main/input/images/shap1.png" width="400" /> 
-</p> -->
+</p> --> -->
