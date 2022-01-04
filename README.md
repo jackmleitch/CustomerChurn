@@ -1,7 +1,7 @@
 # Customer Churn Prediction
 ## Project Overview
 * Created an interpretable model that **predicts churn** on telecom data found on [Kaggle](https://www.kaggle.com/c/customer-churn-prediction-2020/overview) (F1: 0.796) to build a pipeline to try and retain more customers.
-* Used **SMOTE** to oversample minority class (churned customers) which imporved the F1 score from 0.61 to 0.80.
+* Used **SMOTE** to oversample minority class (churned customers) which improved the F1 score from 0.61 to 0.80.
 * **Engineered new features** for example, aggregating different features together. 
 * Performed **feature selection** using SHAP values.
 * Optimized Logistic Regression and Decision Tree models using **Optuna** and pruned the decision tree further to reduce overfitting.
@@ -42,7 +42,7 @@ After obtaining the data, I needed to clean it up so that it was usable for my m
 * One-hot-encoding was used to encode categorical features and ordinal encoding was used to encode ordinal features. 
 
 ## Model Building 
-In this step, I started by building two baseline models which were a simple Dummy Classifier which always predicts the majority class (churn=no) and a Logistic Regression model that used the two most correlated features with churn. After this, I built a few different candidate models and compared different metrics to determine which was the best model for deployment. My main aim was to build an interpretable model so the two shortlisted models were:
+In this step, I started by building two baseline models which were a simple Dummy Classifier that always predicts the majority class (churn=no) and a Logistic Regression model that used the two most correlated features with churn. After this, I built a few different candidate models and compared different metrics to determine which was the best model for deployment. My main aim was to build an interpretable model so the two shortlisted models were:
 * Logistic Regression 
 * Decision Tree Classifier
 
@@ -51,17 +51,25 @@ Feature selection was performed using SHAP values from a more complicated Random
 <img src="https://github.com/jackmleitch/CustomerChurn/blob/main/data/blog_content/shap.png" width="400" height="300">
 </p>
 
-Optuna was used to tune both shortlisted models. In particular, the Tree-structured Parzen Estimator (TPE) was used to minimize a custom metric which was the RMSE of the difference between validation and training F1 score and is weighted four times less than the validation F1 score. Optimizing this function forced the train and valid score to stay close, while also maximizing the validation score. This was used as decision trees notoriously overfit the training data. Cost complexity post pruning was also used to help the decision tree generalize better (and also improve interpretability). 
+Optuna was used to tune both shortlisted models. In particular, the Tree-structured Parzen Estimator (TPE) was used to minimize a custom metric which was the RMSE of the difference between validation and training F1 score and is weighted four times less than the validation F1 score.
+<p align="center">
+<img src="https://github.com/jackmleitch/CustomerChurn/blob/main/data/blog_content/custom_metric.png" width="400" height="100">
+</p>
+Optimizing this function forced the train and valid score to stay close, while also maximizing the validation score. This was used as decision trees notoriously overfit the training data. Cost complexity post pruning was also used to help the decision tree generalize better (and also improve interpretability). 
 
-<!-- ## Model Performance
-<!-- The XGB model far outperformed the other approaches on the test and validation sets.
-* XGB Regressor : RMSE = 9.41
-* Lasso Regression: RMSE = 10.54
-* Random Forest Regressor: RMSE = 10.89
+## Model Performance
+The Decision Tree Classifier model far outperformed the Logistic Regression approach on the test and validation sets.
+* Decision Tree Classidier : F1 = 0.796, Recall = 0.852, Precision = 0.747
+* Logistic Regression : F1 = 0.503, Recall = 0.694, Precision = 0.394
 
-The final XGB model was then trained on the whole training dataset using the hyperparameters found in the Optuna experiment. -->
+The final DT model was then trained on the whole training dataset using the hyperparameters found in the Optuna experiment.
+
+<p align="center">
+<img src="https://github.com/jackmleitch/CustomerChurn/blob/main/data/blog_content/mlflow.png" width="600" height="200">
+</p>
 
 ## Model Interpretation
+Coming soon. 
 <!-- SHAP was used to interpret the model and individual predictions. It was found that longer and faster runs recieve more kudos (as they are more impressive?). Workouts also recieve more kudos than easy runs.
 
 <p float="left">
