@@ -18,7 +18,7 @@ This project was aimed at predicting customer churn using the telecommunications
 **Requirements:** ```pip install -r requirements.txt```  
 
 ## Project Write-Up
-A blog post was written about this project and it was featured on Towards Data Science, it can be found [here](https://towardsdatascience.com/predicting-strava-kudos-1a4ce7a02053).
+A blog post was written about this project and it was featured on Towards Data Science, it can be found [here](https://towardsdatascience.com/building-interpretable-models-on-imbalanced-data-a6ea5ae89bc6).
 
 ## Data Collection
 The data for this project was from a public Kaggle competition found [here](https://towardsdatascience.com/building-interpretable-models-on-imbalanced-data-a6ea5ae89bc6). 
